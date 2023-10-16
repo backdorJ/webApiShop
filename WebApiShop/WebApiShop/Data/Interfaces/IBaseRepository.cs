@@ -6,4 +6,5 @@ public interface IBaseRepository<T>
     Task<bool> DeleteAsync(int id);
     Task<IEnumerable<T>> GetAllAsync();
     Task<T> GetByIdAsync(int id);
+    Task<bool> IsExistAsync(int id);
 }

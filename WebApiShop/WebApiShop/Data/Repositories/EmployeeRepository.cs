@@ -39,4 +39,9 @@ public class EmployeeRepository : IEmployeeRepository
     {
         return await _dbContext.Employees.FirstOrDefaultAsync(employee => employee.Id == id);
     }
+
+    public async Task<bool> IsExistAsync(int id)
+    {
+        return await _dbContext.Employees.AnyAsync(employee => employee!.Id == id);
+    }
 }
