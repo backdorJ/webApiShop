@@ -11,11 +11,14 @@ public class ApplicationDbContext : DbContext
     public DbSet<Employee?> Employees { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<EmployeeProduct> EmployeeProducts { get; set; }
-
+    public DbSet<Peet> Peets { get; set; }
+    public DbSet<Car> Cars { get; set; }
+    public DbSet<Country> Countries { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
+        
         modelBuilder.Entity<EmployeeProduct>().HasKey(x => new { x.EmployeeId, x.ProductId });
 
         modelBuilder.Entity<EmployeeProduct>()
@@ -27,5 +30,10 @@ public class ApplicationDbContext : DbContext
             .HasOne(x => x.Products)
             .WithMany(product => product.EmployeesList)
             .HasForeignKey(x => x.ProductId);
+
+        // modelBuilder.Entity<Car>()
+        //     .HasOne(x => x.Country)
+        //     .WithMany(x => x.Cars)
+        //     .HasForeignKey(x => x.CountryId);
     }
 }
