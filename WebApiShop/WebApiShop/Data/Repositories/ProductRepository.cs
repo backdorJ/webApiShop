@@ -17,8 +17,7 @@ public class ProductRepository : IProductRepository
     public async Task<bool> CreateAsync(Product entity)
     {
         await _db.Products.AddAsync(entity);
-        await _db.SaveChangesAsync();
-        return true;
+        return await SaveAsync();
     }
 
     public async Task<bool> DeleteAsync(int id)
@@ -27,11 +26,10 @@ public class ProductRepository : IProductRepository
         var entity = await _db.Products.FirstOrDefaultAsync(product => product.Id == id);
         if (entity == null) return false;
         _db.Products.Remove(entity);
-        await _db.SaveChangesAsync();
-        return true;
+        return await SaveAsync();
     }
 
-    public async Task<IEnumerable<Product>> GetAllAsync()
+    public async Task<ICollection<Product>> GetAllAsync()
     {
         return await _db.Products.ToListAsync();
     }
@@ -46,6 +44,11 @@ public class ProductRepository : IProductRepository
     public async Task<bool> IsExistAsync(int id)
     {
         return await _db.Products.AnyAsync(product => product.Id == id);
+    }
+
+    public async Task<bool> SaveAsync()
+    {
+        return await _db.SaveChangesAsync() > 0;
     }
 
     public async Task<IEnumerable<Employee>> GetEmployeesByProductIdAsync(int id)
