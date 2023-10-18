@@ -11,6 +11,7 @@ public class MappingProfiles : Profile
         CreateMap<Employee, EmployeeDTO>();
         CreateMap<EmployeeDTO, Employee>();
         CreateMap<Product, ProductDTO>();
+        CreateMap<ProductDTO, Product>();
         CreateMap<Country, CountryDTO>();
         CreateMap<CountryDTO, Country>();
         CreateMap<Car, CarDTO>();

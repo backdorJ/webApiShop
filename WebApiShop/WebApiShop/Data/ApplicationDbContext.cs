@@ -30,10 +30,6 @@ public class ApplicationDbContext : DbContext
             .HasOne(x => x.Products)
             .WithMany(product => product.EmployeesList)
             .HasForeignKey(x => x.ProductId);
-
-        // modelBuilder.Entity<Car>()
-        //     .HasOne(x => x.Country)
-        //     .WithMany(x => x.Cars)
-        //     .HasForeignKey(x => x.CountryId);
+        
     }
 }

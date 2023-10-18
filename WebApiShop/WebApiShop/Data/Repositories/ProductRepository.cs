@@ -58,4 +58,16 @@ public class ProductRepository : IProductRepository
             .Select(x => x.Employees)
             .ToListAsync();
     }
+
+    public async Task<bool> UpdateProductAsync(Product product)
+    {
+        _db.Products.Update(product);
+        return await SaveAsync();
+    }
+
+    public async Task<bool> DeleteProductAsync(Product product)
+    {
+        _db.Products.Remove(product);
+        return await SaveAsync();
+    }
 }

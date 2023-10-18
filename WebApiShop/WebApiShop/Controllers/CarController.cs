@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApiShop.Data.Interfaces;
 using WebApiShop.DTO;
@@ -6,6 +7,7 @@ using WebApiShop.Models;
 
 namespace WebApiShop.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class CarController : Controller
@@ -27,7 +29,7 @@ public class CarController : Controller
     [ProducesResponseType(200, Type = typeof(IEnumerable<CarDTO>))]
     public async Task<IActionResult> GetCarsAsync()
     {
-        return Ok(_mapper.Map<CarDTO>(await _carRepository.GetAllAsync()));
+        return Ok(_mapper.Map<List<CarDTO>>(await _carRepository.GetAllAsync()));
     }
 
     [HttpGet("{id:int}")]
@@ -58,5 +60,50 @@ public class CarController : Controller
         if (entity == null) return NotFound();
 
         return Ok(entity);
+    }
+
+    [HttpPut("{carId:int}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> UpdateCarAsync(int carId, [FromBody] CarDTO carDto)
+    {
+        if (carId == null)
+            return BadRequest();
+
+        if (carId != carDto.Id)
+            return BadRequest();
+
+        if (!ModelState.IsValid)
+            return BadRequest();
+
+        if (!await _carRepository.IsExistAsync(carId))
+            return NotFound();
+
+        var car = _mapper.Map<Car>(carDto);
+        if (!await _carRepository.UpdateCarAsync(car))
+            return BadRequest();
+        
+        return NoContent();
+    }
+
+    [HttpDelete("{carId:int}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> DeleteCarAsync(int carId)
+    {
+        if (!await _carRepository.IsExistAsync(carId))
+            return NotFound();
+
+        if (!ModelState.IsValid)
+            return BadRequest();
+
+        var car = await _carRepository.GetByIdAsync(carId);
+
+        if (!await _carRepository.DeleteCarAsync(car))
+            return BadRequest();
+
+        return NoContent();
     }
 }

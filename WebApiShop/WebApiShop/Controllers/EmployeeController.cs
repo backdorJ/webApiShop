@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApiShop.Data.Interfaces;
 using WebApiShop.DTO;
@@ -6,6 +7,7 @@ using WebApiShop.Models;
 
 namespace WebApiShop.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class EmployeeController : Controller
@@ -71,5 +73,51 @@ public class EmployeeController : Controller
         }
 
         return Ok("Successfully created!");
+    }
+
+    [HttpPut("{employeeId:int}")]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> PutEmployeeAsync(int employeeId, [FromBody] EmployeeDTO? employeeDto)
+    {
+        if (employeeDto == null)
+            return BadRequest(ModelState);
+
+        if (employeeId != employeeDto.Id)
+            return NotFound();
+
+        if (!await _employeeRepository.IsExistAsync(employeeId))
+            return NotFound();
+
+        if (!ModelState.IsValid)
+            return BadRequest();
+
+        var employee = _mapper.Map<Employee>(employeeDto);
+
+        if (!await _employeeRepository.UpdateEmployeeAsync(employee))
+            return BadRequest();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{employeeId:int}")]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> DeleteEmployeeAsync(int employeeId)
+    {
+        if (!await _employeeRepository.IsExistAsync(employeeId))
+            return NotFound();
+
+        if (!ModelState.IsValid)
+            return BadRequest();
+
+        var employee = await _employeeRepository.GetByIdAsync(employeeId);
+
+        if (!await _employeeRepository.DeleteEmployeeAsync(employee))
+            return BadRequest();
+
+        return NoContent();
     }
 }

@@ -59,4 +59,16 @@ public class EmployeeRepository : IEmployeeRepository
         await _dbContext.Employees.AddAsync(employee);
         return await SaveAsync();
     }
+
+    public async Task<bool> UpdateEmployeeAsync(Employee employee)
+    {
+        _dbContext.Update(employee);
+        return await SaveAsync();
+    }
+
+    public async Task<bool> DeleteEmployeeAsync(Employee employee)
+    {
+        _dbContext.Employees.Remove(employee);
+        return await SaveAsync();
+    }
 }

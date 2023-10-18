@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApiShop.Data.Interfaces;
 using WebApiShop.DTO;
@@ -6,6 +7,7 @@ using WebApiShop.Models;
 
 namespace WebApiShop.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class ProductController : Controller
@@ -23,7 +25,7 @@ public class ProductController : Controller
     [ProducesResponseType(200, Type = typeof(IEnumerable<ProductDTO>))]
     public async Task<IActionResult> GetProducts()
     {
-        var entity = _mapper.Map<ProductDTO>(await _productRepository.GetAllAsync());
+        var entity = _mapper.Map<List<ProductDTO>>(await _productRepository.GetAllAsync());
         return Ok(entity);
     }
 
@@ -51,5 +53,50 @@ public class ProductController : Controller
 
         var entity = _mapper.Map<List<EmployeeDTO>>(await _productRepository.GetEmployeesByProductIdAsync(productId));
         return Ok(entity);
+    }
+
+    [HttpPut("{productId:int}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> UpdateProductAsync(int productId, [FromBody] ProductDTO productDto)
+    {
+        if (productId == null)
+            return BadRequest();
+
+        if (productId != productDto.Id)
+            return BadRequest();
+
+        if (!ModelState.IsValid)
+            return BadRequest();
+
+        if (!await _productRepository.IsExistAsync(productId))
+            return NotFound();
+
+        var car = _mapper.Map<Product>(productDto);
+        if (!await _productRepository.UpdateProductAsync(car))
+            return BadRequest();
+        
+        return NoContent();
+    }
+
+    [HttpDelete("{productId:int}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> DeleteProductAsync(int productId)
+    {
+        if (!await _productRepository.IsExistAsync(productId))
+            return NotFound();
+
+        if (!ModelState.IsValid)
+            return BadRequest();
+
+        var product = await _productRepository.GetByIdAsync(productId);
+
+        if (!await _productRepository.DeleteProductAsync(product))
+            return BadRequest();
+
+        return NoContent();
     }
 }

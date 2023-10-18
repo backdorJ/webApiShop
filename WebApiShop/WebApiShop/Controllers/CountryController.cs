@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApiShop.Data.Interfaces;
 using WebApiShop.DTO;
@@ -6,6 +7,7 @@ using WebApiShop.Models;
 
 namespace WebApiShop.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class CountryController : Controller
@@ -84,5 +86,50 @@ public class CountryController : Controller
         }
         
         return Ok("Successfully created!");
+    }
+
+    [HttpPut("{countryId:int}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> UpdateCountryAsync(int countryId, [FromBody] CountryDTO countryDto)
+    {
+        if (countryDto == null)
+            return BadRequest();
+
+        if (countryId != countryDto.Id)
+            return BadRequest();
+
+        if (!ModelState.IsValid)
+            return BadRequest();
+
+        if (!await _countryRepository.IsExistAsync(countryId))
+            return NotFound();
+
+        var country = _mapper.Map<Country>(countryDto);
+        if (!await _countryRepository.UpdateCountryAsync(country))
+            return BadRequest();
+        
+        return NoContent();
+    }
+
+    [HttpDelete("{countryId:int}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(400)]
+    public async Task<IActionResult> DeleteCountryAsync(int countryId)
+    {
+        if (!await _countryRepository.IsExistAsync(countryId))
+            return NotFound();
+
+        if (!ModelState.IsValid)
+            return BadRequest();
+
+        var country = await _countryRepository.GetByIdAsync(countryId);
+
+        if (!await _countryRepository.DeleteCountryAsync(country))
+            return BadRequest();
+
+        return NoContent();
     }
 }

@@ -54,4 +54,16 @@ public class CarRepository : ICarRepository
             .Select(x => x.Country)
             .FirstOrDefaultAsync();
     }
+
+    public async Task<bool> UpdateCarAsync(Car car)
+    {
+        _dbContext.Update(car);
+        return await SaveAsync();
+    }
+
+    public async Task<bool> DeleteCarAsync(Car car)
+    {
+        _dbContext.Cars.Remove(car);
+        return await SaveAsync();
+    }
 }

@@ -54,4 +54,16 @@ public class CountryRepository : ICountryRepository
             .SelectMany(x => x.Cars)
             .ToListAsync();
     }
+
+    public Task<bool> UpdateCountryAsync(Country country)
+    {
+        _dbContext.Countries.Update(country);
+        return SaveAsync();
+    }
+
+    public async Task<bool> DeleteCountryAsync(Country country)
+    {
+        _dbContext.Remove(country);
+        return await SaveAsync();
+    }
 }
